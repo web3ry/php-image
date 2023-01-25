@@ -1,6 +1,6 @@
 ARG PHP_VERSION
 FROM php:${PHP_VERSION}-fpm
-LABEL name="MelonApp PHP-FPM ${PHP_VERSION}"
+LABEL name="Webery PHP-FPM ${PHP_VERSION}"
 
 ARG upload_max_filesize
 ARG timezone
