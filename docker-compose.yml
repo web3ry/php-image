@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  php-fpm:
+    container_name: php${PHP_VERSION}-fpm
+    build:
+      context: .
+      args:
+        ARCH: ${ARCH}
+        PHP_VERSION: ${PHP_VERSION}
+        upload_max_filesize: ${upload_max_filesize}
+        timezone: ${timezone}
+
+    image: melonapp/php${PHP_VERSION}-fpm

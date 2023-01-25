@@ -1,0 +1,42 @@
+stages:
+  - build-php-fpm
+  - build-php-fpm-dev
+
+.only-default: &only-build
+  only:
+    - master
+    - develop
+
+build-php-fpm:
+  <<: *only-build
+  stage: build-php-fpm
+  tags:
+    - staging
+    - wbo_webapp
+  script:
+    - PHP_VERSION=$(cat .env | grep PHP_VERSION | cut -f2 -d'=')
+    - upload_max_filesize=$(cat .env | grep upload_max_filesize | cut -f2 -d'=')
+    - timezone=$(cat .env | grep timezone | cut -f2 -d'=')
+    - docker login --username ${IMAGE_REGISTRY_USER} --password ${IMAGE_REGISTRY_PASSWORD}
+    - docker build --build-arg PHP_VERSION=${PHP_VERSION} --build-arg upload_max_filesize=${upload_max_filesize} --build-arg timezone=${timezone} -t ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:latest -t ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:${CI_COMMIT_SHORT_SHA} --file Dockerfile .
+    - docker push ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:latest
+    - docker push ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:${CI_COMMIT_SHORT_SHA}
+  only:
+    - master
+
+build-php-fpm-dev:
+  <<: *only-build
+  stage: build-php-fpm-dev
+  tags:
+    - staging
+    - wbo_webapp
+  script:
+    - PHP_VERSION=$(cat .env | grep PHP_VERSION | cut -f2 -d'=')
+    - upload_max_filesize=$(cat .env | grep upload_max_filesize | cut -f2 -d'=')
+    - timezone=$(cat .env | grep timezone | cut -f2 -d'=')
+    - docker login --username ${IMAGE_REGISTRY_USER} --password ${IMAGE_REGISTRY_PASSWORD}
+    - docker build --build-arg PHP_VERSION=${PHP_VERSION} --build-arg upload_max_filesize=${upload_max_filesize} --build-arg timezone=${timezone} -t ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:develop -t ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:${CI_COMMIT_SHORT_SHA} --file Dockerfile .
+    - docker push ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:develop
+    - docker push ${IMAGE_REPOSITORY}/php${PHP_VERSION}-fpm:${CI_COMMIT_SHORT_SHA}
+  only:
+    - develop
